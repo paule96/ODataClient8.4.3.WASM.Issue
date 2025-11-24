@@ -1,0 +1,42 @@
+﻿@page "/"
+@inject NS.Container sampleSerivce
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@if(customers is not null)
+{
+	<h2>Custommers</h2>
+	@foreach (var customer in customers)
+	{
+		<p>@customer.Name (@customer.Id)</p>
+	}
+}
+
+<button onclick="@GenerateCustomers"></button>
+
+
+@code{
+
+	List<NS.Customer>? customers = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		customers = (await sampleSerivce.Customers.ExecuteAsync()).ToList();
+		await base.OnInitializedAsync();
+	}
+
+	public async Task GenerateCustomers()
+	{
+		sampleSerivce.AddToCustomers(new NS.Customer()
+		{
+			Id = Random.Shared.Next(),
+			Name = "New Customer " + DateTime.Now.Ticks,
+		});
+		await sampleSerivce.SaveChangesAsync();
+		customers = (await sampleSerivce.Customers.ExecuteAsync()).ToList();
+	}
+}
